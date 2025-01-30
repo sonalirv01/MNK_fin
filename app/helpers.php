@@ -13,9 +13,9 @@ function generateUniqueUserId()
 
 function convertCurrency($type){
     $curl = curl_init();
-
+        $apikey=env('EXCHANGE_RATE_API_KEY');
     curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://api.exchangeratesapi.io/v1/latest?access_key=b4c62cfec471b4019dc301aa5ad43975',
+        CURLOPT_URL => 'https://api.exchangeratesapi.io/v1/latest?access_key='.$apikey.'',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
