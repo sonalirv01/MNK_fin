@@ -30,7 +30,7 @@ class AdminUserController extends Controller
         ]);
 
         $userId = generateUniqueUserId();
-        
+
         User::create([
             'user_id' => $userId,
             'name' => $request->name,
@@ -46,13 +46,15 @@ class AdminUserController extends Controller
     {
         $userId = $request->user_id;
         $users = User::select('name', 'email', 'user_id')->where('user_id', '!=', $userId)->where('is_admin', 0)->get();
-        return view('admin.fund-transfer', compact('userId', 'users'));
+        $currency_codes = convertCurrency('codes');
+        return view('admin.fund-transfer', compact('userId', 'users', 'currency_codes'));
     }
 
     public function transferFund(Request $request)
     {
         $request->validate([
             'transfer_to' => 'required',
+            'currency' => 'required',
             'amount' => 'required|numeric|min:0.01',
         ]);
 
@@ -64,12 +66,13 @@ class AdminUserController extends Controller
 
         $walletBalance = $from->wallet;
         $amount = $request->amount;
-
-        if ($amount > $walletBalance) {
+        $converted_amount = convertCurrency($request->currency);
+        $final_amount = (1 / $converted_amount) * $amount;
+        if ($final_amount > $walletBalance) {
             return back()->withErrors(['amount' => 'The transfer amount cannot be greater than the users wallet balance.']);
         }
 
-        $from->wallet -= $amount;
+        $from->wallet -= $final_amount;
         $from->save();
 
         $to = User::where('user_id', $request->transfer_to)->first();
@@ -77,7 +80,7 @@ class AdminUserController extends Controller
             return back()->withErrors(['transfer_to' => 'Recipient user not found.']);
         }
 
-        $to->wallet += $amount;
+        $to->wallet += $final_amount;
         $to->save();
 
         return redirect()->route('admin-dashboard.index')->with('success', 'Fund transferred successfully');

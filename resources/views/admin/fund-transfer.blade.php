@@ -37,6 +37,17 @@
                             </div>
 
                             <div>
+                                <label for="currency" class="block text-sm font-medium text-gray-700">Currency</label>
+                                <select id="currency" name="currency" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                    <option value="" selected disabled>Select a Currency</option>
+                                    @foreach($currency_codes as $codes)
+                                    <option value="{{ $codes }}">{{ $codes }}</option>
+                                    @endforeach
+                                </select>
+                                @error('currency') <span class="text-danger text-xs">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
                                 <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
                                 <input type="amount" id="amount" name="amount" value="{{ old('amount') }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required>
                                 @error('amount') <span class="text-danger text-xs">{{ $message }}</span> @enderror
